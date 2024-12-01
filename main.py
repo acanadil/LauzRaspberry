@@ -82,7 +82,7 @@ if __name__ == '__main__':
     try:
         while True:
             distance = distance_sensor.distance
-            output_detection =  1 if distance >= 0.1 else 0
+            output_detection =  1 if distance <= 0.1 else 0
             print('Distance: {}'.format(distance))
             input_detection = ir.detect()
             print('Object detected: {}'.format(input_detection))
