@@ -30,10 +30,6 @@ myDataStream = DataStream(myMachine)
 ir_state = False
 distance_state = False
 
-box_time = 1 / servo.get_movement 
-
-space_time = 3 / servo.get_movement 
-
 saved_timestamp = time.time()
 
 @app.route('/set_velocity', methods=['POST'])
@@ -90,6 +86,9 @@ if __name__ == '__main__':
     t = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
     try:
         while True:
+            if servo.get_movement() != 0:
+                box_time = 1 / servo.get_movement()
+                space_time = 3 / servo.get_movement()
             if elapsed > space_time:
                 print("missing error notification")
                 saved_timestamp = current_timestamp
