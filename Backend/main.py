@@ -74,7 +74,9 @@ def stop_processing():
 
 @app.route('/notifications')
 def notifications():
-    return jsonify(messages)
+    copy = messages
+    messages = []
+    return jsonify(copy)
 
 def communication(input, output, power):
     if input and not ir_state:
