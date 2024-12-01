@@ -107,7 +107,7 @@ if __name__ == '__main__':
             power = ina.read_power()
             print('Power: {}'.format(power))
 
-            communication(input_detection, output_detection, power, elapsed)
+            communication(input_detection, output_detection, power, elapsed, current_timestamp)
 
             ir_state = input_detection
             distance_state = output_detection
