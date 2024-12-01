@@ -7,3 +7,4 @@ class Machine:
         self.id = id
         self.jobStarted = False
         self.processStarted = False
+        self.energy = 0

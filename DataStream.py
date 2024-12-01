@@ -28,17 +28,21 @@ class DataStream:
         self.output += 1
         self.totalOutput += 1
         self.machineState.totalOutput += 1
+
+    def changeSpeed(self, speed):
+        self.machineState.speed = speed
+    
     def sendTelemetry(self):
         self.p = Thread(target=self._sendTelemetryLoop)
         self.p.start()
 
-    def stopTelemetry(self):
-        self.p.terminate()
+    def increaseEnergy(self, energy):
+        self.machineState.energy += energy
 
     def _sendTelemetryLoop(self):
         while not self.stop:
             self._sendTelemetryCore()
-            time.sleep(2)  
+            time.sleep(10)  
 
     def _sendTelemetryCore(self):
         timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.') + str(int(datetime.utcnow().microsecond / 1000)).zfill(3) + 'Z'
@@ -49,7 +53,8 @@ class DataStream:
                 "datasource": "172.20.2.5:80",
                 "timestamp": timestamp,
                 "machinespeed" : self.machineState.speed,
-                "totaloutputunitcount" : self.totalOutput
+                "totaloutputunitcount" : self.totalOutput,
+                "totalworkingenergy": self.machineState.energy
             }
         }
 
@@ -107,7 +112,6 @@ class DataStream:
     def startProcessing(self, jobName):
         if self.machineState.processStarted or not self.machineState.jobStarted:
             return
-        self._sendTelemetry()
         self.machineState.processStarted = not self.machineState.processStarted
         timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.') + str(int(datetime.utcnow().microsecond / 1000)).zfill(3) + 'Z'
         self.machineState.jobs.append(jobName)
@@ -146,11 +150,11 @@ class DataStream:
         message.content_encoding = "utf-8"
         message.custom_properties["messageType"] = "MachineEvent"
         self.client.send_message(message)
-        self.p.join()
         self.input = 0
         self.output = 0
 
-    def disconnect(self):
+    def stopTelemetry(self):
         self.stop = True
         self.p.join()
+    def disconnect(self):
         self.client.disconnect()
