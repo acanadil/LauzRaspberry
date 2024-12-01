@@ -3,13 +3,15 @@ from flask import Flask, request, jsonify
 from gpiozero import DistanceSensor
 from ir import IR
 from ina import INA
+from box_control import Box_control
 from time import sleep
+
 import threading
 
 from DataStream import DataStream
 from Machine import Machine
 
-period = 1
+period = 0.05
 
 app = Flask(__name__)
 
@@ -29,7 +31,7 @@ myDataStream = DataStream(myMachine)
 ir_state = False
 distance_state = False
 
-
+messages = []
 
 @app.route('/set_velocity', methods=['POST'])
 def set_velocity():
@@ -70,6 +72,10 @@ def stop_processing():
     myDataStream.stopTelemetry()
     return "OK"
 
+@app.route('/notifications')
+def notifications():
+    return jsonify(messages)
+
 def communication(input, output, power):
     if input and not ir_state:
         myDataStream.newInputBox()
@@ -79,15 +85,21 @@ def communication(input, output, power):
 
 if __name__ == '__main__':
     t = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
+    bc = Box_control(ir)
+    
     try:
         while True:
             distance = distance_sensor.distance
             output_detection =  1 if distance <= 0.1 else 0
-            print('Distance: {}'.format(distance))
+            #print('Distance: {}'.format(distance))
+            result = bc.check_box(servo.get_velocity())
+            if result != None:
+                messages.append(result)
+            
             input_detection = ir.detect()
-            print('Object detected: {}'.format(input_detection))
+            #print('Object detected: {}'.format(input_detection))
             power = ina.read_power()
-            print('Power: {}'.format(power))
+            #print('Power: {}'.format(power))
 
             communication(input_detection, output_detection, power)
 
