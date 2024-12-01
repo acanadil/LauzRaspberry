@@ -4,12 +4,13 @@ from gpiozero import DistanceSensor
 from ir import IR
 from ina import INA
 from time import sleep
+import time
 import threading
 
 from DataStream import DataStream
 from Machine import Machine
 
-period = 1
+period = 0.1
 
 app = Flask(__name__)
 
@@ -29,7 +30,11 @@ myDataStream = DataStream(myMachine)
 ir_state = False
 distance_state = False
 
+box_time = 1 / servo.velocity 
 
+space_time = 3 / servo.velocity 
+
+saved_timestamp = time.time()
 
 @app.route('/set_velocity', methods=['POST'])
 def set_velocity():
@@ -70,8 +75,12 @@ def stop_processing():
     myDataStream.stopTelemetry()
     return "OK"
 
-def communication(input, output, power):
+def communication(input, output, power, elapsed, current_timestamp):
+    global saved_timestamp
     if input and not ir_state:
+        if elapsed < box_time:
+            print("TOO MANY BOXES")
+            saved_timestamp = current_timestamp
         myDataStream.newInputBox()
     if output and not distance_state:
         myDataStream.newOutputBox()
@@ -81,6 +90,11 @@ if __name__ == '__main__':
     t = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
     try:
         while True:
+            if elapsed > space_time:
+                print("missing error notification")
+                saved_timestamp = current_timestamp
+            current_timestamp = time.time()
+            elapsed = current_timestamp - saved_timestamp
             distance = distance_sensor.distance
             output_detection =  1 if distance <= 0.1 else 0
             print('Distance: {}'.format(distance))
@@ -89,7 +103,7 @@ if __name__ == '__main__':
             power = ina.read_power()
             print('Power: {}'.format(power))
 
-            communication(input_detection, output_detection, power)
+            communication(input_detection, output_detection, power, elapsed)
 
             ir_state = input_detection
             distance_state = output_detection

@@ -19,7 +19,8 @@ class Servo:
         GPIO.setup(pin, GPIO.OUT)
         self.p = GPIO.PWM(pin, 50) # GPIO 17 for PWM with 50Hz
         self.p.start(STOP) # Initialization
-
+        self.velocity = 0
+    
     def set_movement(self, velocity):
         """
         Sets the servo movement
@@ -29,6 +30,7 @@ class Servo:
             raise ValueError("Velocity must be between -1 and 1")
         else:
             self.p.ChangeDutyCycle(velocity * 5 + 7.5)
+            self.velocity = velocity
 
     def cleanup(self):
         self.p.ChangeDutyCycle(STOP)
