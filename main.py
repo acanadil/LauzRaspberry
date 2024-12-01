@@ -84,11 +84,16 @@ def communication(input, output, power, elapsed, current_timestamp):
 
 if __name__ == '__main__':
     t = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
+    box_time = float('inf')
+    space_time = float('inf')
     try:
         while True:
             if servo.get_movement() != 0:
                 box_time = 1 / servo.get_movement()
                 space_time = 3 / servo.get_movement()
+            elif servo.get_movement == 0:
+                box_time = float('inf')
+                space_time = float('inf')
             current_timestamp = time.time()
             elapsed = current_timestamp - saved_timestamp
             distance = distance_sensor.distance
