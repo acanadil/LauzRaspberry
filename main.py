@@ -6,6 +6,9 @@ from ina import INA
 from time import sleep
 import threading
 
+from DataStream import DataStream
+from Machine import Machine
+
 period = 1
 
 app = Flask(__name__)
@@ -19,6 +22,11 @@ ir = IR(ir_pin)
 distance_sensor = DistanceSensor(16, 20)
 ina = INA()
 
+id = "lauzhack-pi1"
+myMachine = Machine(id)
+myDataStream = DataStream(id)
+
+
 
 @app.route('/set_velocity', methods=['POST'])
 def set_velocity():
@@ -31,22 +39,55 @@ def set_velocity():
         return jsonify({'error': '"velocity" must be a float'}), 400
     try:
         servo.set_movement(velocity)
+        myDataStream.changeSpeed(velocity)
         return jsonify({'message': 'Velocity set to {}'.format(velocity)})
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+    
 
+@app.route('/start_job', methods=['POST'])
+def start_job():
+    myDataStream.startJob(id)
+    return "OK"
+
+@app.route('/end_job', methods=['POST'])
+def start_job():
+    myDataStream.endJob(id)
+    return "OK"
+
+@app.route('/start_processing', methods=['POST'])
+def start_job():
+    myDataStream.sendTelemetry()
+    myDataStream.startProcessing(id)
+    return "OK"
+
+@app.route('/stop_processing', methods=['POST'])
+def start_job():
+    myDataStream.stopProcessing(id)
+    myDataStream.stopTelemetry()
+    return "OK"
+
+def communication(input, output, power):
+    if input:
+        myDataStream.newInputBox()
+    if output:
+        myDataStream.newOutputBox()
+    myDataStream.increaseEnergy(power)
 
 if __name__ == '__main__':
     t = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
-
     try:
         while True:
             distance = distance_sensor.distance
+            output_detection =  1 if distance >= 0.1 else 0
             print('Distance: {}'.format(distance))
-            object_detected = ir.detect()
-            print('Object detected: {}'.format(object_detected))
+            input_detection = ir.detect()
+            print('Object detected: {}'.format(input_detection))
             power = ina.read_power()
             print('Power: {}'.format(power))
+
+            communication(input_detection, output_detection, power)
+            
             sleep(period)
 
     except KeyboardInterrupt:
