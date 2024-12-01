@@ -90,12 +90,12 @@ if __name__ == '__main__':
                 box_time = 1 / servo.get_movement()
                 space_time = 3 / servo.get_movement()
             current_timestamp = time.time()
-            if elapsed > space_time:
-                print("missing error notification")
-                saved_timestamp = current_timestamp
             elapsed = current_timestamp - saved_timestamp
             distance = distance_sensor.distance
             output_detection =  1 if distance <= 0.1 else 0
+            if elapsed > space_time:
+                print("missing error notification")
+                saved_timestamp = current_timestamp
             print('Distance: {}'.format(distance))
             input_detection = ir.detect()
             print('Object detected: {}'.format(input_detection))
