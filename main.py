@@ -5,7 +5,7 @@ from ir import IR
 from ina import INA
 from time import sleep
 import time
-import threading
+import threading, logging
 
 from DataStream import DataStream
 from Machine import Machine
@@ -71,11 +71,11 @@ def stop_processing():
     myDataStream.stopTelemetry()
     return "OK"
 
-def communication(input, output, power, elapsed, current_timestamp):
+def communication(input, output, power, elapsed, current_timestamp, logger):
     global saved_timestamp
     if input and not ir_state:
         if elapsed < box_time:
-            print("TOO MANY BOXES")
+            logger.info("TOO MANY BOXES")
             saved_timestamp = current_timestamp
         myDataStream.newInputBox()
     if output and not distance_state:
@@ -83,6 +83,10 @@ def communication(input, output, power, elapsed, current_timestamp):
     myDataStream.increaseEnergy(power)
 
 if __name__ == '__main__':
+
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename='errors.log', encoding='utf-8', level=logging.DEBUG)
+
     t = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
     box_time = float('inf')
     space_time = float('inf')
@@ -99,7 +103,7 @@ if __name__ == '__main__':
             distance = distance_sensor.distance
             output_detection =  1 if distance <= 0.1 else 0
             if elapsed > space_time:
-                print("missing error notification")
+                logger.info("missing error notification")
                 saved_timestamp = current_timestamp
             print('Distance: {}'.format(distance))
             input_detection = ir.detect()
@@ -107,7 +111,7 @@ if __name__ == '__main__':
             power = ina.read_power()
             print('Power: {}'.format(power))
 
-            communication(input_detection, output_detection, power, elapsed, current_timestamp)
+            communication(input_detection, output_detection, power, elapsed, current_timestamp, logger)
 
             ir_state = input_detection
             distance_state = output_detection
