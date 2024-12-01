@@ -24,7 +24,7 @@ ina = INA()
 
 id = "lauzhack-pi1"
 myMachine = Machine(id)
-myDataStream = DataStream(id)
+myDataStream = DataStream(myMachine)
 
 
 
