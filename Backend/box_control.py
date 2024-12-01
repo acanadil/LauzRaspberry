@@ -13,7 +13,7 @@ class Box_control:
 
 
 
-    def check_box(self, angular_vel, buffer):
+    def check_box(self, angular_vel):
         ir_state = self.ir.detect()
         message = None
         if ir_state != self.prev_state:
