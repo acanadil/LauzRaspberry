@@ -28,7 +28,7 @@ class _MainAppState extends State<MainApp> {
 
   final List<String> _notifications = [];
   late Timer _timer;
-  final String _apiUrl = 'http://pi1.local:5005/notifications';
+  final String _apiUrl = 'http://pi1.local:5000/notifications';
 
   @override
   void initState() {
