@@ -51,18 +51,18 @@ def start_job():
     return "OK"
 
 @app.route('/end_job', methods=['POST'])
-def start_job():
+def end_job():
     myDataStream.endJob(id)
     return "OK"
 
 @app.route('/start_processing', methods=['POST'])
-def start_job():
+def start_processing():
     myDataStream.sendTelemetry()
     myDataStream.startProcessing(id)
     return "OK"
 
 @app.route('/stop_processing', methods=['POST'])
-def start_job():
+def stop_processing():
     myDataStream.stopProcessing(id)
     myDataStream.stopTelemetry()
     return "OK"
