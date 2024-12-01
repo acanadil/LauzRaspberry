@@ -26,6 +26,9 @@ id = "lauzhack-pi1"
 myMachine = Machine(id)
 myDataStream = DataStream(myMachine)
 
+ir_state = False
+distance_state = False
+
 
 
 @app.route('/set_velocity', methods=['POST'])
@@ -68,9 +71,9 @@ def stop_processing():
     return "OK"
 
 def communication(input, output, power):
-    if input:
+    if input and not ir_state:
         myDataStream.newInputBox()
-    if output:
+    if output and not distance_state:
         myDataStream.newOutputBox()
     myDataStream.increaseEnergy(power)
 
@@ -87,6 +90,9 @@ if __name__ == '__main__':
             print('Power: {}'.format(power))
 
             communication(input_detection, output_detection, power)
+
+            ir_state = input_detection
+            distance_state = output_detection
             
             sleep(period)
 
