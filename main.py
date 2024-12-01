@@ -89,10 +89,10 @@ if __name__ == '__main__':
             if servo.get_movement() != 0:
                 box_time = 1 / servo.get_movement()
                 space_time = 3 / servo.get_movement()
+            current_timestamp = time.time()
             if elapsed > space_time:
                 print("missing error notification")
                 saved_timestamp = current_timestamp
-            current_timestamp = time.time()
             elapsed = current_timestamp - saved_timestamp
             distance = distance_sensor.distance
             output_detection =  1 if distance <= 0.1 else 0
