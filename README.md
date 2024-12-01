@@ -7,6 +7,7 @@ To exectute the backend code, you need to have the following libraries installed
 - gpiozero
 - rpi-lgpio
 - ina219
+- azure-iot-device
 - flask
 
 Run the following command to start the backend server:
