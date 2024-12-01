@@ -20,6 +20,9 @@ class Servo:
         self.p = GPIO.PWM(pin, 50) # GPIO 17 for PWM with 50Hz
         self.p.start(STOP) # Initialization
         self.velocity = 0
+
+    def get_movement(self):
+        return self.velocity
     
     def set_movement(self, velocity):
         """

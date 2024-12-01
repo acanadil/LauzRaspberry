@@ -30,9 +30,9 @@ myDataStream = DataStream(myMachine)
 ir_state = False
 distance_state = False
 
-box_time = 1 / servo.velocity 
+box_time = 1 / servo.get_movement 
 
-space_time = 3 / servo.velocity 
+space_time = 3 / servo.get_movement 
 
 saved_timestamp = time.time()
 
