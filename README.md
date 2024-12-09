@@ -2,7 +2,7 @@
 
 ## Backend
 
-To exectute the backend code, you need to have the following libraries installed:
+To exectute the backend code, you need to have the following libraries installed: HOLA
 
 - gpiozero
 - rpi-lgpio
